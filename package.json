@@ -1,0 +1,35 @@
+{
+  "name": "api-openai-discord-channel",
+  "version": "1.0.0",
+  "description": "Discord bot with open ai integration",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/samuelgiubi/api-openai-discord-channel.git"
+  },
+  "keywords": [
+    "discord",
+    "bot",
+    "openai",
+    "ai",
+    "chatgpt"
+  ],
+  "author": "Samuel Giubi",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/samuelgiubi/api-openai-discord-channel/issues"
+  },
+  "homepage": "https://github.com/samuelgiubi/api-openai-discord-channel#readme",
+  "dependencies": {
+    "discord.js": "^14.8.0",
+    "dotenv": "^16.0.3",
+    "openai": "^3.2.1"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.21"
+  }
+}

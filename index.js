@@ -1,7 +1,7 @@
 // Importamos las dependencias necesarias
 require('dotenv').config();
 const { Client, GatewayIntentBits } = require('discord.js');
-const { Configuration, OpenAIApi } = require('openai');
+const { setupOpenAI, askOpenAI } = require('./ai.js');
 
 // Configuramos los intents para el cliente de Discord
 const client = new Client({ intents: [
@@ -10,42 +10,29 @@ const client = new Client({ intents: [
     GatewayIntentBits.MessageContent
 ]})
 
-// Configuramos la conexión con la API de OpenAI
-const configuration = new Configuration({
-    organization: process.env.OPENAI_ORG,
-    apiKey: process.env.OPENAI_KEY,
-});
-const openai = new OpenAIApi(configuration);
+const openai = setupOpenAI();
 
 // Define el ID del canal en el que el bot debe responder, como para un layer extra más allá de privilegios en el canal
-const targetChannelId = 'process.env.DISCORD_CHANNEL_ID';
+const targetChannelId = process.env.DISCORD_CHANNEL_ID;
 
 // Escuchamos el evento 'messageCreate'
-client.on('messageCreate', async (message) => {
+client.on('messageCreate', async (discordMessage) => {
     // Ignoramos mensajes de bots y mensajes fuera del canal objetivo
-    if (message.author.bot || message.channel.id !== targetChannelId) return;
+    if (discordMessage.author.bot || discordMessage.channel.id !== targetChannelId) return;
 
     try {
         // Creamos una conversación inicial
-        const messages = [
-            {role: "user", content: message.content}
+        const message = [
+            {
+                role: "user",
+                content: discordMessage.content
+            }
         ];
 
         // Enviamos la consulta a la API de OpenAI
-        const gptResponse = await openai.createChatCompletion({
-            model: "gpt-3.5-turbo",
-            messages: messages,
-            temperature: 0.5,
-            max_tokens: 2000,
-            user: `user-${message.author.id}`
-        });
+        const responseMessage = await askOpenAI(openai, discordMessage, message)
 
-        // Verificamos si la propiedad text está disponible y, en caso afirmativo, respondemos al mensaje
-        if (gptResponse.data.choices[0] && gptResponse.data.choices[0].message.content) {
-            message.reply(gptResponse.data.choices[0].message.content.trim());
-        } else {
-            console.error('Error: la propiedad "message" no está disponible en la respuesta de OpenAI');
-        }
+        discordMessage.reply(responseMessage);
     } catch (err) {
         // Registramos el error en caso de que ocurra alguno
         console.error('Error al procesar el mensaje:', err);
